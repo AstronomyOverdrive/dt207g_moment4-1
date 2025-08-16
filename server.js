@@ -63,6 +63,30 @@ async function dbConnect() {
 	}
 }
 
+// Routing
+// Login user
+app.post("/login", async (req, res) => {
+	try {
+		const dbModel = await mongoose.model("useraccounts", userSchema);
+		const user = await dbModel.find({username: req.body.username});
+		if (user.length !== 0) { // Check if user is found
+			const passwordsMatch = await bcrypt.compare(req.body.password, user[0].password);
+			if (passwordsMatch) {
+				// Sign JWT token
+				const payload = {username: user[0].username}
+				const token = jwt.sign(payload, process.env.ACCESS_TOKEN, {expiresIn: "6h"});
+				res.status(200).json({message: "Login successful", token});
+			} else {
+				res.status(401).json({message: "Invalid password"});
+			}
+		} else {
+			res.status(404).json({message: "User "+req.body.username+" not found"});
+		}
+	} catch (error) {
+		res.status(500).json({error: 'Internal error: ' + error});
+	}
+});
+
 // Start server
 app.listen(process.env.PORT, () => {
 	console.log("Server live on port", process.env.PORT);

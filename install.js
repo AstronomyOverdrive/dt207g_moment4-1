@@ -1,5 +1,6 @@
 // Import modules
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 require("dotenv").config();
 
 // Connection uri
@@ -19,10 +20,7 @@ const userSchema = mongoose.Schema({
 	},
 	password: {
 		type: String,
-		required: [true, "Lösenord är obligatoriskt"],
-		trim: true,
-		minlength: [10, "Lösenord måste vara minst 10 tecken"],
-		maxlength: [50, "Lösenord kan inte överskrida 50 tecken"]
+		required: [true, "Lösenord är obligatoriskt"]
 	},
 }, {
 	timestamps: true
@@ -64,9 +62,10 @@ async function populateDb() {
 		// Remove all entries
 		await userModel.deleteMany({});
 		// Create a test user
+		const testPassword = await bcrypt.hash("TestPassword", 10);
 		await userModel.create({
 			username: "TestUser",
-			password: "TestPassword"
+			password: testPassword
 		});
 		// Daedra
 		// Selecet / create model
