@@ -28,10 +28,7 @@ const userSchema = mongoose.Schema({
 	},
 	password: {
 		type: String,
-		required: [true, "Lösenord är obligatoriskt"],
-		trim: true,
-		minlength: [10, "Lösenord måste vara minst 10 tecken"],
-		maxlength: [50, "Lösenord kan inte överskrida 50 tecken"]
+		required: [true, "Lösenord är obligatoriskt"]
 	},
 }, {
 	timestamps: true
@@ -84,6 +81,25 @@ app.post("/login", async (req, res) => {
 		}
 	} catch (error) {
 		res.status(500).json({error: 'Internal error: ' + error});
+	}
+});
+// Register user
+app.post("/register", async (req, res) => {
+	try {
+		const dbModel = await mongoose.model("useraccounts", userSchema);
+		const user = await dbModel.find({username: req.body.username});
+		if (user.length === 0) { // Username is free
+			const hashedPassword = await bcrypt.hash(req.body.password, 10);
+			const result = await dbModel.create({
+				username: req.body.username,
+				password: hashedPassword
+			});
+			res.status(201).json({message: "User "+req.body.username+" created"});
+		} else {
+			res.status(409).json({message: "Username "+req.body.username+" already taken"});
+		}
+	} catch (error) {
+		res.status(500).json({error: 'Database error: ' + error});
 	}
 });
 
