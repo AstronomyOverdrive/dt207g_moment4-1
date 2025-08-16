@@ -104,9 +104,13 @@ app.post("/register", async (req, res) => {
 });
 // Get daedric princes
 app.get("/daedra", authenticateToken, async (req, res) => {
-	const dbModel = await mongoose.model("daedricprinces", daedraSchema);
-	const daedra = await dbModel.find({}); // Get all entries
-	return res.status(200).json(daedra);
+	try {
+		const dbModel = await mongoose.model("daedricprinces", daedraSchema);
+		const daedra = await dbModel.find({}); // Get all entries
+		return res.status(200).json(daedra);
+	} catch (error) {
+		res.status(500).json({error: 'Database error: ' + error});
+	}
 });
 
 // Middleware authentication
