@@ -102,6 +102,29 @@ app.post("/register", async (req, res) => {
 		res.status(500).json({error: 'Database error: ' + error});
 	}
 });
+// Get daedric princes
+app.get("/daedra", authenticateToken, async (req, res) => {
+	const dbModel = await mongoose.model("daedricprinces", daedraSchema);
+	const daedra = await dbModel.find({}); // Get all entries
+	return res.status(200).json(daedra);
+});
+
+// Middleware authentication
+async function authenticateToken(req, res, next) {
+	const authHeader = req.headers["authorization"];
+	const token = authHeader && authHeader.split(" ")[1];
+	if (token == null) { // Check if user has a token
+		return res.status(401).json({message: "Missing token"});
+	}
+	// Check if token is valid
+	jwt.verify(token, process.env.ACCESS_TOKEN, (error, user) => {
+		if (error) {
+			return res.status(403).json({message: "Invalid token"});
+		}
+		req.user = user;
+		next();
+	});
+}
 
 // Start server
 app.listen(process.env.PORT, () => {
