@@ -37,6 +37,7 @@ After starting the server you can access the API at: [http://0.0.0.0:8000/](http
 |Login user   |POST   |/login   |{"username": "Name", "password": "Pass"}|                                            |
 |Register user|POST   |/register|{"username": "Name", "password": "Pass"}|                                            |
 |Read entries |GET    |/daedra  |                                        | {"Authorization": "Bearer JSON.Web.Token"} |
+
 *NOTE: Username must be between 5-25 characters*
 ### Successful response format
 **POST /login**<br>
